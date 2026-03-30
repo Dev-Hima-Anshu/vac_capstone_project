@@ -1,0 +1,11 @@
+{
+  "name": "capstone-project",
+  "private": true,
+  "workspaces": ["bharat-tutor-ai"],
+  "scripts": {
+    "dev": "npm run dev -w bharat-tutor-ai",
+    "build": "npm run build -w bharat-tutor-ai",
+    "start": "npm run start -w bharat-tutor-ai",
+    "lint": "npm run lint -w bharat-tutor-ai"
+  }
+}
