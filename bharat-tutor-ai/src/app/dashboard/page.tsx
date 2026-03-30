@@ -15,10 +15,13 @@ import { useFirebaseAuth, useLocale } from "@/providers/app-providers";
 
 const BADGE_LABELS: Record<string, string> = {
   "collaborative-learning": "Collaborative Learning",
+  "roadmap-starter": "Roadmap Starter",
+  "roadmap-halfway": "Halfway Hero",
+  "roadmap-master": "Roadmap Master",
 };
 
 export default function DashboardPage() {
-  const { user, firebaseEnabled } = useFirebaseAuth();
+  const { user, firebaseEnabled, isGuestSession } = useFirebaseAuth();
   const { t } = useLocale();
   const [doc, setDoc] = useState<UserProgressDoc | null>(null);
 
@@ -42,6 +45,32 @@ export default function DashboardPage() {
       : Math.round((doneCount / Math.max(steps.length, 1)) * 100);
 
   const badges = doc?.badges ?? [];
+  const derivedBadges = [
+    doneCount >= 1 ? "roadmap-starter" : null,
+    pct >= 50 ? "roadmap-halfway" : null,
+    pct >= 100 ? "roadmap-master" : null,
+  ].filter(Boolean) as string[];
+  const allBadges = Array.from(new Set([...badges, ...derivedBadges]));
+
+  if (!user && !isGuestSession) {
+    return (
+      <div className="min-h-[100dvh] bg-gradient-to-b from-background via-orange-50/30 to-sky-50/40">
+        <SiteHeader />
+        <main className="mx-auto max-w-3xl space-y-6 px-4 py-10 sm:px-6">
+          <h1 className="text-3xl font-bold tracking-tight text-primary">{t("dashboard")}</h1>
+          <p className="text-muted-foreground">
+            Please login or continue as guest to view your dashboard.
+          </p>
+          <Link
+            href="/auth"
+            className={cn(buttonVariants({ size: "lg" }), "inline-flex gap-2")}
+          >
+            Open Auth
+          </Link>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-[100dvh] bg-gradient-to-b from-background via-orange-50/30 to-sky-50/40">
@@ -90,13 +119,13 @@ export default function DashboardPage() {
             <CardDescription>Earned by joining Concept Circles and staying consistent.</CardDescription>
           </CardHeader>
           <CardContent>
-            {badges.length === 0 ? (
+            {allBadges.length === 0 ? (
               <p className="text-sm text-muted-foreground">
                 Join a Concept Circle and leave the room once to unlock your first badge.
               </p>
             ) : (
               <ul className="flex flex-wrap gap-2">
-                {badges.map((b) => (
+                {allBadges.map((b) => (
                   <li key={b}>
                     <Badge className="bg-primary text-primary-foreground">
                       {BADGE_LABELS[b] ?? b}

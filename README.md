@@ -1,6 +1,6 @@
 # VAC Capstone — BharatTutor AI
 
-Next.js app for resume analysis (Groq), learning roadmaps, and live **Concept Circle** discussions (Jitsi + Firebase).
+Next.js app for resume analysis (Groq), learning roadmaps, and live **Concept Circle** discussions (**Daily.co** video + Firebase chat).
 
 **Repository:** [github.com/Dev-Hima-Anshu/vac_capstone_project](https://github.com/Dev-Hima-Anshu/vac_capstone_project)
 
@@ -51,6 +51,7 @@ Edit `bharat-tutor-ai/.env.local` and add:
 | Variable | Purpose |
 |----------|---------|
 | `GROQ_API_KEY` | Real resume analysis ([Groq console](https://console.groq.com/keys)). If omitted, the API returns **demo** data. |
+| `DAILY_API_KEY` | Concept Circle video ([Daily developers](https://dashboard.daily.co/developers)). Server-only. |
 | `NEXT_PUBLIC_FIREBASE_*` | Firebase Auth + Firestore (see `bharat-tutor-ai/README.md` for rules). |
 
 ### 4. Start the dev server

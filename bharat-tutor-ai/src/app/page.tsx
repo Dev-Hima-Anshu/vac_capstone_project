@@ -193,7 +193,7 @@ export default function HomePage() {
                 </CardHeader>
                 <CardContent>
                   <Link
-                    href={`/circle/${slug}`}
+                    href={`/room/${slug}-${locale}`}
                     className={cn(
                       buttonVariants({ className: "w-full gap-2" }),
                       "inline-flex items-center justify-center",

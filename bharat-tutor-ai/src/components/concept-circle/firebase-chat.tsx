@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 type Props = { roomId: string };
 
 export function FirebaseChatSidebar({ roomId }: Props) {
-  const { user, firebaseEnabled } = useFirebaseAuth();
+  const { user, firebaseEnabled, profileName } = useFirebaseAuth();
   const { t } = useLocale();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [draft, setDraft] = useState("");
@@ -30,7 +30,7 @@ export function FirebaseChatSidebar({ roomId }: Props) {
   }, [messages.length]);
 
   const uid = user?.uid ?? "guest";
-  const label = user ? anonymousLabel(user.uid) : "Guest";
+  const label = profileName || (user ? anonymousLabel(user.uid) : "Guest");
 
   const onSend = async () => {
     const text = draft.trim();
