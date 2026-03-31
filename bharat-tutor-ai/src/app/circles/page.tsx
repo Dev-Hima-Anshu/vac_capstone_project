@@ -34,10 +34,6 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
-function roomIdFor(topicSlug: string, language: "en" | "te") {
-  return `${topicSlug}-${language}`;
-}
-
 function formatRelative(seconds?: number) {
   if (!seconds) return "—";
   const delta = Math.max(0, Math.floor(Date.now() / 1000) - seconds);
@@ -80,26 +76,42 @@ export default function CirclesLobbyPage() {
     }
   }, []);
 
-  const seededRooms = useMemo<ConceptRoom[]>(() => {
-    // Always show “default rooms” (topic × language).
-    const langs: ("en" | "te")[] = ["en", "te"];
-    return CONCEPT_TOPICS.flatMap(({ slug, labelKey }) =>
-      langs.map((l) => ({
-        id: roomIdFor(slug, l),
-        title: `${t(labelKey)} · ${l === "en" ? "English" : "తెలుగు"}`,
-        language: l,
+  // Keep only 1-2 starter rooms (no huge demo room list).
+  // If you create rooms, these starters can be ignored by filtering/search.
+  const starterRooms = useMemo<ConceptRoom[]>(() => {
+    const lang = locale === "te" ? "te" : "en";
+    const starterTopics = CONCEPT_TOPICS.slice(0, 2);
+    return starterTopics.map(({ slug, labelKey }, idx) => {
+      const id = safeRoomId(`starter-${slug}-${lang}-${idx}`);
+      const title = `${t(labelKey)} · ${lang === "en" ? "English" : "తెలుగు"}`;
+      const welcomeMessage =
+        idx === 0
+          ? "Welcome! Start by introducing yourself. Then discuss the topic step-by-step."
+          : "Welcome! Keep it practical: ask questions, propose solutions, and share examples.";
+      return {
+        id,
+        title,
+        language: lang,
         topicSlug: slug,
-      })),
-    );
-  }, [t]);
+        welcomeMessage,
+      };
+    });
+  }, [locale, t]);
 
   const mergedRooms = useMemo(() => {
     const byId = new Map<string, ConceptRoom>();
-    for (const r of seededRooms) byId.set(r.id, r);
     for (const r of rooms) byId.set(r.id, { ...byId.get(r.id), ...r });
     for (const r of localRooms) byId.set(r.id, { ...byId.get(r.id), ...r });
+    // If there are no real rooms yet, show the starters.
+    if (byId.size === 0) {
+      for (const r of starterRooms) byId.set(r.id, r);
+    } else {
+      for (const r of starterRooms) {
+        if (!byId.has(r.id)) byId.set(r.id, r);
+      }
+    }
     return Array.from(byId.values());
-  }, [rooms, seededRooms, localRooms]);
+  }, [rooms, localRooms, starterRooms]);
 
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase();

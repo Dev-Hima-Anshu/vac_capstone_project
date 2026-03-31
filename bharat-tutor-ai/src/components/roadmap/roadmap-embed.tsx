@@ -34,6 +34,7 @@ import {
   type UserProgressDoc,
 } from "@/lib/user-doc";
 import { useFirebaseAuth, useLocale } from "@/providers/app-providers";
+import type { AnalyzeResumeResponse } from "@/types/analyze-resume";
 
 function loadLocalSteps(slug: string): Set<string> {
   try {
@@ -72,10 +73,25 @@ export function RoadmapEmbedClient() {
   const [localDone, setLocalDone] = useState<Set<string>>(() =>
     typeof window === "undefined" ? new Set() : loadLocalSteps(slug),
   );
+  const [analysis, setAnalysis] = useState<AnalyzeResumeResponse | null>(null);
 
   useEffect(() => {
     setLocalDone(loadLocalSteps(slug));
   }, [slug]);
+
+  // Link roadmap UI to the last resume upload (stored on the home page).
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem("bharat-last-analysis");
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as AnalyzeResumeResponse;
+      if (parsed && typeof parsed.readinessPercent === "number") {
+        setAnalysis(parsed);
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
   useEffect(() => {
     if (!firebaseEnabled || !user) return;
@@ -190,6 +206,12 @@ export function RoadmapEmbedClient() {
                 <h2 className="mt-1 text-2xl font-bold tracking-tight text-foreground">
                   roadmap.sh / <span className="text-primary">{slug}</span>
                 </h2>
+                {analysis && (
+                  <p className="mt-3 text-sm font-semibold text-emerald-800">
+                    You are {analysis.readinessPercent}% job-ready for{" "}
+                    {analysis.roleTitle} in {analysis.location}!
+                  </p>
+                )}
                 <p className="mt-2 max-w-prose text-sm text-muted-foreground">
                   If your browser blocks embedding, use the button below. Your progress is
                   tracked here with the checklist.

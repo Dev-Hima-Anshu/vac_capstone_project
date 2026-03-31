@@ -70,7 +70,7 @@ export async function POST(req: Request) {
         enable_screenshare: true,
         enable_chat: false, // Firebase handles text chat in our app
         start_video_off: true,
-        max_participants: 50,
+        // Do NOT set `max_participants` — your plan may restrict it and Daily will reject the request.
       },
     }),
   });

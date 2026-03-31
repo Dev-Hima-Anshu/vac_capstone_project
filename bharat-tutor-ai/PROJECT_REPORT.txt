@@ -1,0 +1,73 @@
+BharatTutor AI — Capstone Project Report (One Page)
+=====================================================
+
+Overview
+--------
+BharatTutor AI is a web-based learning companion built with Next.js 15 (App Router), TypeScript, Tailwind CSS, and shadcn/ui. The platform helps aspiring engineers improve their job readiness through three connected experiences:
+1) Upload a resume for AI-based skill-readiness feedback (Groq LLM).
+2) Follow an official learning roadmap with a built-in progress checklist (roadmap.sh + Firebase sync).
+3) Join live peer “Concept Circles” to discuss topics via real-time video, optional screen sharing, and Firebase chat (Daily.co video + Firestore chat).
+
+All core features are designed to be deploy-ready on Vercel and to work with a free stack (Firebase Spark plan, Groq API key, and Daily.co API key).
+
+Technology Stack
+-----------------
+- Frontend: Next.js 15 + TypeScript + Tailwind v4 + shadcn/ui
+- Backend/AI: Next.js Route Handlers + Groq SDK (JSON structured output)
+- Authentication & Data: Firebase Auth (Anonymous + Email/Password) + Firestore
+- Real-time chat: Firestore subcollection per room (conceptRooms/{roomId}/messages)
+- Video rooms: Daily.co Prebuilt embedded frame created via server API (/api/daily-room)
+- Learning roadmap: roadmap.sh displayed externally with an aligned milestone checklist (Firestore-backed)
+
+Module 1: Resume Upload & Groq Analysis
+---------------------------------------
+Users can upload a resume in PDF or DOCX format from the landing page.
+The backend extracts text (pdf-parse and mammoth) and sends a prompt to Groq to return a strict JSON object containing:
+- readinessPercent (60–95)
+- roleTitle (e.g., Junior AI Engineer)
+- location (inferable Indian city)
+- steps (exactly 4 actionable learning steps)
+- roadmapSlug (roadmap.sh path segment)
+
+The UI then renders an empowering summary: “You are X% job-ready…” plus 4 personalized steps. It also stores the last analysis in sessionStorage so the roadmap page can display the same summary for continuity.
+
+Module 2: Roadmap Integration & Progress Tracking
+---------------------------------------------------
+The official roadmap is opened externally (browser-safe) because some browsers may block iframe embedding. Alongside this, BharatTutor AI shows a checklist of milestone items aligned to the AI engineer roadmap.
+Each “Mark as Done” action updates:
+- a local fallback (sessionStorage) when Firebase is unavailable
+- Firestore user document progress (users/{uid}) when Firebase is configured
+
+Progress percent is calculated from checked milestones and is shown in the UI footer. A Progress bar and done-count reinforce motivation and consistency.
+
+Module 3: Concept Circles (Video + Firebase Chat)
+---------------------------------------------------
+The Concept Circle feature provides a room-list lobby and dynamic discussion room pages.
+Users can:
+- Create a new room by entering topic, language, and welcome message in a guided prompt UI.
+- Copy an invite link and share it to friends.
+- Join instantly without requiring participants to authenticate for video (video is handled through Daily.co).
+Within a room:
+- Video and screen share controls are available from Daily’s prebuilt interface.
+- Firebase chat runs in real-time with anonymous-style display names derived from login/profile.
+- On leaving, the app awards a “Collaborative Learning” badge (Firestore).
+
+Authentication & Personalization
+--------------------------------
+Firebase Authentication supports:
+- Continue as Guest
+- Register/Login via Email/Password
+User profile display name is used inside the video session and chat labels to reduce impersonation and improve community feel.
+Dashboard visibility is gated to logged-in/guest sessions.
+
+Deployment Notes (Vercel)
+--------------------------
+The project is structured for easy deployment:
+- Use `.env.local` for GROQ_API_KEY, DAILY_API_KEY, and Firebase keys.
+- Ensure Firestore security rules permit reads/writes for users and conceptRooms messages.
+- Run `npm run build` and deploy the Next.js app on Vercel.
+
+Conclusion
+----------
+BharatTutor AI combines career coaching, structured roadmap learning, and peer collaboration in a single capstone MVP. By integrating Groq-driven resume analysis, Firebase-synced progress tracking, and Daily.co video rooms with realtime chat, the platform offers a motivating and practical learning experience that can be extended into a full production product.
+
